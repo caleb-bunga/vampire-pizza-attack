@@ -36,6 +36,18 @@ pizza_img = image.load('vampire.png')
 pizza_surf = Surface.convert_alpha(pizza_img)
 VAMPIRE_PIZZA = transform.scale(pizza_surf, WEIGHT)
 
+garlic_img = image.load('garlic.png')
+garlic_surf = Surface.convert_alpha(garlic_img)
+GARLIC = transform.scale(garlic_surf, WEIGHT)
+
+cutter_img = image.load('pizzacutter.png')
+cutter_surf = Surface.convert_alpha(cutter_img)
+CUTTER = transform.scale(cutter_surf, WEIGHT)
+
+pepperoni_img = image.load('pepperoni.png')
+pepperoni_surf = Surface.convert_alpha(pepperoni_img)
+PEPPERONI = transform.scale(pepperoni_surf, WEIGHT)
+
 
 class VampireSprite(sprite.Sprite):
     def __init__(self):
@@ -85,6 +97,25 @@ class Counters(object):
         self.draw_bucks(game_window)
 
 
+class Trap(object):
+    def __init__(self, trap_kind, cost, trap_img):
+        self.trap_kind = trap_kind
+        self.cost = cost
+        self.trap_img = trap_img
+
+
+class Traplicator(object):
+    def __init__(self):
+        self.selected = None
+
+    def select_trap(self, trap):
+        if trap.cost <= counters.pizza_bucks:
+            self.selected = trap
+
+    def select_tile(self, tile, counters):
+        self.selected = tile.set_trap(self.selected, counters)
+
+
 class BackgroundTile(sprite.Sprite):
     def __init__(self, rect):
         super().__init__()
@@ -95,6 +126,10 @@ class BackgroundTile(sprite.Sprite):
 all_vampires = sprite.Group()
 
 counters = Counters(STARTING_BUCKS, BUCK_RATE, STARTING_BUCK_BOOSTER)
+SLOW = Trap('SLOW', 5, GARLIC)
+DAMAGE = Trap('DAMAGE', 3, CUTTER)
+EARN = Trap('EARN', 7, PEPPERONI)
+traplicator = Traplicator()
 
 tile_grid = []
 tile_color = (240, 229, 22)
@@ -120,7 +155,7 @@ while game_running:
             y = coordinates[1]
             tile_y = y // 100
             tile_x = x // 100
-            tile_grid[tile_y][tile_x].effect = True
+            traplicator.select_tile(tile_grid[tile_y][tile_x], counters)
     #            print(x,y)
     #            print('did you wanna place it here?')
     if randint(1, SPAWN_RATE) == 1:
